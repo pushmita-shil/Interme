@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "509599524404",
+    "project_id": "internship-checker-d67e8",
+    "storage_bucket": "internship-checker-d67e8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:509599524404:android:b497a55c654f5cd435cc61",
+        "android_client_info": {
+          "package_name": "com.example.internme"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTHDoD2RfYYW6OWfk67vhxtkNEhKwYZC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
