@@ -26,8 +26,11 @@ class AuthController extends GetxController {
 
   Future<void> signIn() async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      Get.snackbar('Error', 'Please fill in all fields',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Error',
+        'Please fill in all fields',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
@@ -53,8 +56,11 @@ class AuthController extends GetxController {
         }
       }
     } catch (e) {
-      Get.snackbar('Error', 'Login failed: $e',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Error',
+        'Login failed: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -64,8 +70,11 @@ class AuthController extends GetxController {
     if (emailController.text.isEmpty ||
         nameController.text.isEmpty ||
         passwordController.text.isEmpty) {
-      Get.snackbar('Error', 'Please fill in all fields',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Error',
+        'Please fill in all fields',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
@@ -75,14 +84,18 @@ class AuthController extends GetxController {
         emailController.text.trim(),
         nameController.text.trim(),
         selectedRole.value.isEmpty ? 'Student' : selectedRole.value,
+        passwordController.text.trim(),
       );
 
       if (result == AuthResult.otpSent) {
         Get.toNamed(AppRoutes.otp);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Registration failed: $e',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Error',
+        'Registration failed: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -90,8 +103,11 @@ class AuthController extends GetxController {
 
   Future<void> verifyOtp() async {
     if (otpController.text.length < 6) {
-      Get.snackbar('Error', 'Please enter a valid 6-digit code',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Error',
+        'Please enter a valid 6-digit code',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
@@ -102,12 +118,18 @@ class AuthController extends GetxController {
       if (result == AuthResult.success) {
         Get.offAllNamed(AppRoutes.onboardingSuccess);
       } else {
-        Get.snackbar('Error', 'Invalid OTP code. Use 123456.',
-            snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          'Error',
+          'Invalid OTP code. Use 123456.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     } catch (e) {
-      Get.snackbar('Error', 'Verification failed: $e',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Error',
+        'Verification failed: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }
