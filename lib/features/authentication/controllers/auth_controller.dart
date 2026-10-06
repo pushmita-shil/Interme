@@ -25,10 +25,10 @@ class AuthController extends GetxController {
   }
 
   Future<void> signIn() async {
-    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+    if (emailController.text.trim().isEmpty || passwordController.text.isEmpty) {
       Get.snackbar(
         'Error',
-        'Please fill in all fields',
+        'Please enter both email and password',
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
@@ -42,18 +42,36 @@ class AuthController extends GetxController {
       );
 
       if (result == AuthResult.success) {
-        final role = _authService.currentUser?.role ?? 'Student';
-        if (role == 'Student') {
-          // If Student profile is not complete, go to completion
-          if (_authService.currentUser?.college == null) {
-            Get.offAllNamed(AppRoutes.studentProfileCompletion);
-          } else {
-            Get.offAllNamed(AppRoutes.studentDashboard);
-          }
-        } else {
-          // Other roles
-          Get.offAllNamed(AppRoutes.verificationPending);
-        }
+        Get.offAllNamed(AppRoutes.studentDashboard);
+        Get.snackbar(
+          'Welcome Back',
+          'Signed in successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else if (result == AuthResult.errorUserNotFound) {
+        Get.snackbar(
+          'Login Failed',
+          'No account found with this email.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else if (result == AuthResult.errorWrongPassword) {
+        Get.snackbar(
+          'Login Failed',
+          'Incorrect password. Please try again.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else if (result == AuthResult.errorInvalidEmail) {
+        Get.snackbar(
+          'Login Failed',
+          'Please enter a valid email address.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        Get.snackbar(
+          'Login Failed',
+          'Could not sign in. Please verify your credentials.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     } catch (e) {
       Get.snackbar(

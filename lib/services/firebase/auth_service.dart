@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import '../../data/models/user_model.dart';
@@ -19,43 +20,83 @@ class AuthService extends GetxService {
   Future<AuthResult> login(String email, String password) async {
     try {
       // Firebase checks email + password
+
+      debugPrint('LOGIN 1: Starting Firebase login');
       final UserCredential credential = await _auth.signInWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
+
+      debugPrint('LOGIN 2: Firebase login successful');
       final firebaseUser = credential.user;
 
       if (firebaseUser == null) {
+        debugPrint('LOGIN 3: Firebase user is NULL');
         return AuthResult.errorGeneric;
       }
+
+      debugPrint('LOGIN 4: Firebase UID = ${firebaseUser.uid}');
+
+      debugPrint('LOGIN 5: Getting user from Firestore');
 
       // Get user profile from Firestore
-      final user = await _firestore.getUser(firebaseUser.uid);
+      UserModel? user = await _firestore.getUser(firebaseUser.uid);
+
+      debugPrint('LOGIN 6: Firestore user = $user');
 
       if (user == null) {
-        return AuthResult.errorGeneric;
+        // Fallback profile if user exists in Firebase Auth but document is missing
+
+        debugPrint('LOGIN 7: User document not found');
+        final fallbackName =
+            firebaseUser.displayName ??
+            (email.trim().contains('@')
+                ? email.trim().split('@')[0]
+                : 'Student');
+        user = UserModel(
+          id: firebaseUser.uid,
+          email: firebaseUser.email ?? email.trim(),
+          name: fallbackName,
+          role: 'Student',
+          isVerified: true,
+          trustPoints: 100,
+        );
+
+        debugPrint('LOGIN 8: Saving fallback user');
+        await _firestore.saveUser(user);
+        debugPrint('LOGIN 9: Fallback user saved');
       }
+
       _currentUser.value = user;
       isLoggedIn.value = true;
+      debugPrint('LOGIN 10: Login completely successful');
       return AuthResult.success;
     } on FirebaseAuthException catch (e) {
-      print('Firebase Login Error: ${e.code}');
+      debugPrint('Firebase Login Error: ${e.code}');
+      debugPrint('FIREBASE LOGIN MESSAGE: ${e.message}');
 
-      if (e.code == 'user-not-found') {
-        return AuthResult.errorUserNotFound;
+      switch (e.code) {
+        case 'user-not-found':
+          return AuthResult.errorUserNotFound;
+
+        case 'wrong-password':
+        case 'invalid-credential':
+          return AuthResult.errorWrongPassword;
+
+        case 'invalid-email':
+          return AuthResult.errorInvalidEmail;
+
+        case 'user-disabled':
+          return AuthResult.errorGeneric;
+
+        default:
+          return AuthResult.errorGeneric;
       }
+    } catch (e, stackTrace) {
+      debugPrint('========== LOGIN ERROR ==========');
+      debugPrint('Error: $e');
+      debugPrint('StackTrace: $stackTrace');
 
-      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
-        return AuthResult.errorWrongPassword;
-      }
-
-      if (e.code == 'invalid-email') {
-        return AuthResult.errorInvalidEmail;
-      }
-
-      return AuthResult.errorGeneric;
-    } catch (e) {
-      print('Login Error: $e');
       return AuthResult.errorGeneric;
     }
   }
@@ -93,7 +134,7 @@ class AuthService extends GetxService {
       _generatedOtp = '123456';
       return AuthResult.otpSent;
     } on FirebaseAuthException catch (e) {
-      print('Firebase Registration Error: ${e.code}');
+      debugPrint('Firebase Registration Error: ${e.code}');
 
       if (e.code == 'email-already-in-use') {
         return AuthResult.errorEmailAlreadyExists;
@@ -109,7 +150,7 @@ class AuthService extends GetxService {
 
       return AuthResult.errorGeneric;
     } catch (e) {
-      print('Registration Error: $e');
+      debugPrint('Registration Error: $e');
       return AuthResult.errorGeneric;
     }
   }
@@ -131,7 +172,7 @@ class AuthService extends GetxService {
 
       return AuthResult.errorInvalidOtp;
     } catch (e) {
-      print('OTP Verification Error: $e');
+      debugPrint('OTP Verification Error: $e');
       return AuthResult.errorGeneric;
     }
   }

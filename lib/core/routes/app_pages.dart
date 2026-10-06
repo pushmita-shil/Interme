@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+
 import 'app_routes.dart';
 
 // Splash imports
@@ -36,14 +37,8 @@ class AppPages {
       page: () => const SplashScreen(),
       binding: SplashBinding(),
     ),
-    GetPage(
-      name: AppRoutes.welcome,
-      page: () => const WelcomeScreen(),
-    ),
-    GetPage(
-      name: AppRoutes.onboarding,
-      page: () => OnboardingCarouselScreen(),
-    ),
+    GetPage(name: AppRoutes.welcome, page: () => const WelcomeScreen()),
+    GetPage(name: AppRoutes.onboarding, page: () => OnboardingCarouselScreen()),
     GetPage(
       name: AppRoutes.chooseRole,
       page: () => const ChooseRoleScreen(),
