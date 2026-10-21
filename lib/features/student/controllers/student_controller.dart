@@ -6,6 +6,7 @@ import '../../../services/firebase/auth_service.dart';
 import '../../../services/firebase/firestore_service.dart';
 import '../../../data/models/internship_model.dart';
 import '../../../data/models/application_model.dart';
+import '../../../data/models/user_model.dart';
 
 class StudentController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
@@ -36,8 +37,15 @@ class StudentController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Pre-populate fields if user profile exists
-    final user = _authService.currentUser;
+    _populateUserData(_authService.currentUser);
+    ever(_authService.rxCurrentUser, (user) {
+      _populateUserData(user);
+    });
+    loadInternships();
+    loadApplications();
+  }
+
+  void _populateUserData(UserModel? user) {
     if (user != null) {
       collegeController.text = user.college ?? '';
       degreeController.text = user.degree ?? 'Bachelor of Technology';
@@ -48,12 +56,10 @@ class StudentController extends GetxController {
       locationController.text = user.preferredLocation ?? '';
       preferredType.value = user.preferredType ?? 'Hybrid';
       expectedStipend.value = user.expectedStipend ?? 1500.0;
-      if (user.skills != null) {
+      if (user.skills != null && user.skills!.isNotEmpty) {
         selectedSkills.value = List.from(user.skills!);
       }
     }
-    loadInternships();
-    loadApplications();
   }
 
   void toggleSkill(String skill) {

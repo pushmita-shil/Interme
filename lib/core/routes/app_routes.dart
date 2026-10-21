@@ -14,4 +14,7 @@ class AppRoutes {
   static const String marketplace = '/marketplace';
   static const String tracker = '/tracker';
   static const String studentProfile = '/student-profile';
+  static const String aiScanner = '/ai-scanner';
+  static const String scannerAnalysis = '/scanner-analysis';
+  static const String scannerReport = '/scanner-report';
 }

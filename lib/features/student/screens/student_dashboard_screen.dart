@@ -14,7 +14,7 @@ class StudentDashboardScreen extends GetView<StudentController> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Get.find<AuthService>().currentUser;
+    final authService = Get.find<AuthService>();
 
     return Scaffold(
       appBar: AppBar(
@@ -46,7 +46,7 @@ class StudentDashboardScreen extends GetView<StudentController> {
           IconButton(
             icon: const Icon(Icons.settings_outlined, color: AppColors.onSurfaceVariant),
             onPressed: () {
-              Get.find<AuthService>().logout();
+              authService.logout();
               Get.offAllNamed(AppRoutes.welcome);
             },
           ),
@@ -59,15 +59,21 @@ class StudentDashboardScreen extends GetView<StudentController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Greeting
-              Text(
-                'Good Morning, ${user?.name ?? 'Student'} 👋',
-                style: AppTextStyles.headlineLgMobile.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 26,
-                  color: AppColors.onSurface,
-                ),
-              ),
+              // Reactive Greeting from UserModel in Firestore
+              Obx(() {
+                final user = authService.currentUser;
+                final displayName = (user?.name != null && user!.name.trim().isNotEmpty)
+                    ? user.name.trim()
+                    : 'User';
+                return Text(
+                  'Good Morning, $displayName 👋',
+                  style: AppTextStyles.headlineLgMobile.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 26,
+                    color: AppColors.onSurface,
+                  ),
+                );
+              }),
               const SizedBox(height: 4),
               Text(
                 'Ready to find your next verified opportunity?',
@@ -76,7 +82,7 @@ class StudentDashboardScreen extends GetView<StudentController> {
               const SizedBox(height: 24),
               
               // AI Insight Card & Statistics Bento Grid
-              _buildBentoHeroSection(),
+              _buildBentoHeroSection(authService),
               const SizedBox(height: 32),
               
               // Quick Actions Grid
@@ -143,7 +149,7 @@ class StudentDashboardScreen extends GetView<StudentController> {
     );
   }
 
-  Widget _buildBentoHeroSection() {
+  Widget _buildBentoHeroSection(AuthService authService) {
     return Column(
       children: [
         // AI Insight Banner
@@ -224,12 +230,15 @@ class StudentDashboardScreen extends GetView<StudentController> {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _buildStatCard(
-                icon: Icons.workspace_premium,
-                title: 'Trust Points',
-                value: '450',
-                color: AppColors.tertiary,
-              ),
+              child: Obx(() {
+                final user = authService.currentUser;
+                return _buildStatCard(
+                  icon: Icons.workspace_premium,
+                  title: 'Trust Points',
+                  value: '${user?.trustPoints ?? 100}',
+                  color: AppColors.tertiary,
+                );
+              }),
             ),
           ],
         ),
@@ -296,7 +305,7 @@ class StudentDashboardScreen extends GetView<StudentController> {
 
   Widget _buildQuickActionsGrid() {
     final actions = [
-      {'label': 'AI Scanner', 'icon': Icons.center_focus_strong, 'color': AppColors.primary, 'route': AppRoutes.marketplace},
+      {'label': 'AI Scanner', 'icon': Icons.center_focus_strong, 'color': AppColors.primary, 'route': AppRoutes.aiScanner},
       {'label': 'Marketplace', 'icon': Icons.shopping_bag, 'color': AppColors.secondary, 'route': AppRoutes.marketplace},
       {'label': 'Reviews', 'icon': Icons.rate_review, 'color': AppColors.tertiary, 'route': AppRoutes.marketplace},
       {'label': 'Scam Alerts', 'icon': Icons.gpp_maybe, 'color': AppColors.error, 'route': AppRoutes.marketplace},

@@ -84,24 +84,27 @@ class FirestoreService extends GetxService {
 
   // User Operations
   Future<UserModel?> getUser(String id) async {
-    // 1. Check in-memory list first
-    final memoryUser = _users.firstWhereOrNull((u) => u.id == id);
-    if (memoryUser != null) {
-      return memoryUser;
-    }
-
-    // 2. Fetch from Cloud Firestore
     try {
+      debugPrint('Firestore: Fetching user document users/$id');
       final doc = await _db.collection('users').doc(id).get();
       if (doc.exists && doc.data() != null) {
-        final user = UserModel.fromJson(doc.data()!);
-        _users.add(user);
+        final user = UserModel.fromJson(doc.data()!, docId: doc.id);
+        final index = _users.indexWhere((u) => u.id == user.id);
+        if (index != -1) {
+          _users[index] = user;
+        } else {
+          _users.add(user);
+        }
+        debugPrint('Firestore: User fetched successfully: ${user.name} (${user.role})');
         return user;
       }
-    } catch (e) {
+      debugPrint('Firestore: User document users/$id does not exist');
+      return null;
+    } catch (e, stackTrace) {
       debugPrint('Firestore getUser error: $e');
+      debugPrint('StackTrace: $stackTrace');
+      rethrow;
     }
-    return null;
   }
 
   Future<void> saveUser(UserModel user) async {
@@ -115,15 +118,16 @@ class FirestoreService extends GetxService {
 
     // 2. Persist to Cloud Firestore
     try {
-      await _db.collection('users').doc(user.id).set(user.toJson());
+      debugPrint('Firestore: Saving user document users/${user.id}');
+      await _db
+          .collection('users')
+          .doc(user.id)
+          .set(user.toJson(), SetOptions(merge: true));
 
-      debugPrint('Firestore: User saved successfully: ${user.id}');
+      debugPrint('Firestore: User saved successfully: ${user.name} (${user.id})');
     } catch (e, stackTrace) {
       debugPrint('Firestore saveUser error: $e');
       debugPrint('StackTrace: $stackTrace');
-
-      // IMPORTANT:
-      // Do not silently ignore the error.
       rethrow;
     }
   }

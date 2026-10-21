@@ -27,6 +27,10 @@ import '../../features/student/screens/student_dashboard_screen.dart';
 import '../../features/student/screens/marketplace_screen.dart';
 import '../../features/student/screens/application_tracker_screen.dart';
 import '../../features/student/screens/student_profile_screen.dart';
+import '../../features/scanner/bindings/scanner_binding.dart';
+import '../../features/scanner/screens/ai_scanner_screen.dart';
+import '../../features/scanner/screens/scanner_analysis_screen.dart';
+import '../../features/scanner/screens/scanner_report_screen.dart';
 
 class AppPages {
   static const initial = AppRoutes.splash;
@@ -98,6 +102,21 @@ class AppPages {
       name: AppRoutes.studentProfile,
       page: () => const StudentProfileScreen(),
       binding: StudentBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.aiScanner,
+      page: () => const AiScannerScreen(),
+      binding: ScannerBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.scannerAnalysis,
+      page: () => const ScannerAnalysisScreen(),
+      binding: ScannerBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.scannerReport,
+      page: () => const ScannerReportScreen(),
+      binding: ScannerBinding(),
     ),
   ];
 }
