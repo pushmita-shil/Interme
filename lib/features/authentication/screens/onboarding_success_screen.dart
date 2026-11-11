@@ -13,7 +13,6 @@ class OnboardingSuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = Get.find<AuthService>();
-    final user = authService.currentUser;
 
     return Scaffold(
       body: SafeArea(
@@ -46,18 +45,24 @@ class OnboardingSuccessScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Text(
-                'Welcome to InternMe, ${user?.name ?? 'User'}. Your security verification is complete. You can now configure your profile.',
-                textAlign: TextAlign.center,
-                style: AppTextStyles.bodyLg.copyWith(fontSize: 16),
-              ),
+              Obx(() {
+                final user = authService.currentUser;
+                final displayName = (user?.name != null && user!.name.trim().isNotEmpty)
+                    ? user.name.trim()
+                    : 'User';
+                return Text(
+                  'Welcome to InternMe, $displayName. Your security verification is complete. You can now configure your profile.',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyLg.copyWith(fontSize: 16),
+                );
+              }),
               const SizedBox(height: 48),
               
               // Button
               CustomButton(
                 text: 'Continue',
                 onPressed: () {
-                  final role = user?.role ?? 'Student';
+                  final role = authService.currentUser?.role ?? 'Student';
                   if (role == 'Student') {
                     Get.offAllNamed(AppRoutes.studentProfileCompletion);
                   } else {

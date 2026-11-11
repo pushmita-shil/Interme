@@ -45,19 +45,19 @@ class UserModel {
     this.website,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
+  factory UserModel.fromJson(Map<String, dynamic> json, {String? docId}) {
     return UserModel(
-      id: json['id'] as String,
-      email: json['email'] as String,
-      name: json['name'] as String,
-      role: json['role'] as String,
+      id: (json['id'] as String?) ?? docId ?? '',
+      email: json['email'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      role: json['role'] as String? ?? 'Student',
       isVerified: json['isVerified'] as bool? ?? false,
-      trustPoints: json['trustPoints'] as int? ?? 0,
+      trustPoints: (json['trustPoints'] as num?)?.toInt() ?? 0,
       college: json['college'] as String?,
       degree: json['degree'] as String?,
       department: json['department'] as String?,
-      passingYear: json['passingYear'] as int?,
-      skills: (json['skills'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      passingYear: (json['passingYear'] as num?)?.toInt(),
+      skills: (json['skills'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
       linkedin: json['linkedin'] as String?,
       github: json['github'] as String?,
       preferredType: json['preferredType'] as String?,

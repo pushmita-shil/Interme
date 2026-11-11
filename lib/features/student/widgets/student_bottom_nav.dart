@@ -26,8 +26,10 @@ class StudentBottomNav extends StatelessWidget {
               Get.offAllNamed(AppRoutes.studentDashboard);
               break;
             case 1:
-            case 2:
               Get.offNamed(AppRoutes.marketplace);
+              break;
+            case 2:
+              Get.toNamed(AppRoutes.aiScanner);
               break;
             case 3:
               Get.offNamed(AppRoutes.tracker);

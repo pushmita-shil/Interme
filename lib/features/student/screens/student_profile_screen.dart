@@ -13,7 +13,6 @@ class StudentProfileScreen extends GetView<StudentController> {
   @override
   Widget build(BuildContext context) {
     final authService = Get.find<AuthService>();
-    final user = authService.currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -83,25 +82,34 @@ class StudentProfileScreen extends GetView<StudentController> {
                                   Row(
                                     children: [
                                       Expanded(
-                                        child: Text(
-                                          user?.name ?? 'Pushmita Roy',
-                                          style: AppTextStyles.headlineMd.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 22,
-                                          ),
-                                        ),
+                                        child: Obx(() {
+                                          final user = authService.currentUser;
+                                          final displayName = (user?.name != null && user!.name.trim().isNotEmpty)
+                                              ? user.name.trim()
+                                              : 'User';
+                                          return Text(
+                                            displayName,
+                                            style: AppTextStyles.headlineMd.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 22,
+                                            ),
+                                          );
+                                        }),
                                       ),
                                       const Icon(Icons.verified, color: AppColors.secondary, size: 20),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(
-                                    'Verified Student',
-                                    style: AppTextStyles.labelSm.copyWith(
-                                      color: AppColors.secondary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  Obx(() {
+                                    final user = authService.currentUser;
+                                    return Text(
+                                      'Verified ${user?.role ?? 'Student'}',
+                                      style: AppTextStyles.labelSm.copyWith(
+                                        color: AppColors.secondary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    );
+                                  }),
                                 ],
                               ),
                             ),
@@ -109,13 +117,16 @@ class StudentProfileScreen extends GetView<StudentController> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        'Trust Level: Gold (850 points)',
-                        style: AppTextStyles.bodyMd.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.tertiary,
-                        ),
-                      ),
+                      Obx(() {
+                        final user = authService.currentUser;
+                        return Text(
+                          'Trust Level: Gold (${user?.trustPoints ?? 100} points)',
+                          style: AppTextStyles.bodyMd.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.tertiary,
+                          ),
+                        );
+                      }),
                       const SizedBox(height: 24),
                       
                       // Stat counters
@@ -158,42 +169,51 @@ class StudentProfileScreen extends GetView<StudentController> {
                       const SizedBox(height: 20),
                       
                       // Academic details
-                      _buildSectionCard(
-                        title: 'Education',
-                        icon: Icons.school,
-                        content: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user?.degree ?? 'Bachelor of Technology',
-                              style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              '${user?.college ?? 'Stanford University'} • ${user?.passingYear ?? 2026}',
-                              style: AppTextStyles.bodySm,
-                            ),
-                          ],
-                        ),
-                      ),
+                      Obx(() {
+                        final user = authService.currentUser;
+                        return _buildSectionCard(
+                          title: 'Education',
+                          icon: Icons.school,
+                          content: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                user?.degree ?? 'Bachelor of Technology',
+                                style: AppTextStyles.bodyMd.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                '${user?.college ?? 'Not specified'} • ${user?.passingYear ?? 2026}',
+                                style: AppTextStyles.bodySm,
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                       const SizedBox(height: 20),
                       
                       // Skills
-                      _buildSectionCard(
-                        title: 'Skills',
-                        icon: Icons.psychology,
-                        content: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: (user?.skills ?? ['Flutter', 'Dart', 'Firebase', 'UI UX']).map((skill) {
-                            return Chip(
-                              label: Text(skill),
-                              backgroundColor: AppColors.primaryContainer.withOpacity(0.08),
-                              side: const BorderSide(color: Colors.transparent),
-                              labelStyle: AppTextStyles.labelSm.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
-                            );
-                          }).toList(),
-                        ),
-                      ),
+                      Obx(() {
+                        final user = authService.currentUser;
+                        final skillsList = (user?.skills != null && user!.skills!.isNotEmpty)
+                            ? user.skills!
+                            : ['Flutter', 'Dart', 'Firebase', 'UI UX'];
+                        return _buildSectionCard(
+                          title: 'Skills',
+                          icon: Icons.psychology,
+                          content: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: skillsList.map((skill) {
+                              return Chip(
+                                label: Text(skill),
+                                backgroundColor: AppColors.primaryContainer.withOpacity(0.08),
+                                side: const BorderSide(color: Colors.transparent),
+                                labelStyle: AppTextStyles.labelSm.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      }),
                       const SizedBox(height: 20),
                       
                       // Verified Documents

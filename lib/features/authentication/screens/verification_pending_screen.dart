@@ -13,7 +13,6 @@ class VerificationPendingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = Get.find<AuthService>();
-    final user = authService.currentUser;
 
     return Scaffold(
       body: SafeArea(
@@ -43,11 +42,17 @@ class VerificationPendingScreen extends StatelessWidget {
                 style: AppTextStyles.headlineLg.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              Text(
-                'Hello ${user?.name ?? 'User'}, your registration as a ${user?.role ?? 'Partner'} is being reviewed by our security team to ensure trust and authenticity on InternMe.',
-                textAlign: TextAlign.center,
-                style: AppTextStyles.bodyLg.copyWith(fontSize: 16),
-              ),
+              Obx(() {
+                final user = authService.currentUser;
+                final displayName = (user?.name != null && user!.name.trim().isNotEmpty)
+                    ? user.name.trim()
+                    : 'User';
+                return Text(
+                  'Hello $displayName, your registration as a ${user?.role ?? 'Partner'} is being reviewed by our security team to ensure trust and authenticity on InternMe.',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyLg.copyWith(fontSize: 16),
+                );
+              }),
               const SizedBox(height: 16),
               
               // Estimated Time Card

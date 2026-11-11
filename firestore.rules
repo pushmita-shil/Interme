@@ -1,0 +1,120 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.admin == true || getUserData().role == 'Admin');
+    }
+
+    function isCompany() {
+      return isAuthenticated() && getUserData().role == 'Company';
+    }
+
+    function isStudent() {
+      return isAuthenticated() && getUserData().role == 'Student';
+    }
+
+    // =========================================================================
+    // 1. Users Collection
+    // =========================================================================
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(userId);
+      // Students and Companies cannot change their own isVerified status or trustPoints
+      allow update: if isOwner(userId) && 
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['isVerified', 'trustPoints', 'role']))
+        || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // 2. Internships Collection
+    // =========================================================================
+    match /internships/{internshipId} {
+      // Anyone authenticated can read active listings
+      allow read: if true;
+
+      // Companies can create listings for their own companyId
+      // Protected fields: isVerified, trustScore, isFeatured cannot be self-assigned
+      allow create: if (isCompany() && 
+          request.resource.data.companyId == request.auth.uid &&
+          request.resource.data.isVerified == false &&
+          request.resource.data.trustScore == null &&
+          request.resource.data.isFeatured == false)
+        || isAdmin();
+
+      // Only the authoring company or admin can update, but company cannot change verification or trust fields
+      allow update: if (isCompany() && resource.data.companyId == request.auth.uid &&
+          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['isVerified', 'trustScore', 'isFeatured'])))
+        || isAdmin();
+
+      allow delete: if (isCompany() && resource.data.companyId == request.auth.uid) || isAdmin();
+    }
+
+    // =========================================================================
+    // 3. Companies Collection
+    // =========================================================================
+    match /companies/{companyId} {
+      allow read: if true;
+      allow create: if isCompany() && isOwner(companyId) &&
+        request.resource.data.verificationStatus == 'unverified';
+      
+      // Company can update their basic profile, but CANNOT self-verify
+      allow update: if (isCompany() && isOwner(companyId) &&
+          (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['verificationStatus', 'verifiedAt', 'verificationEvidence'])))
+        || isAdmin();
+
+      allow delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // 4. Saved Internships Collection (Bookmarks)
+    // =========================================================================
+    match /saved_internships/{bookmarkId} {
+      // Students can only read, create, and delete their own saved records
+      allow read: if isAuthenticated() && resource.data.studentId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.studentId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.studentId == request.auth.uid;
+      allow update: if false; // Bookmarks are atomic entries
+    }
+
+    // =========================================================================
+    // 5. Applications Collection
+    // =========================================================================
+    match /applications/{applicationId} {
+      // Students can read their own applications
+      // Companies can read applications for their companyId
+      allow read: if isAuthenticated() && 
+        (resource.data.studentId == request.auth.uid || 
+         resource.data.companyId == request.auth.uid || 
+         isAdmin());
+
+      // Student can submit an initial application with status 'Applied'
+      allow create: if isAuthenticated() && 
+        request.resource.data.studentId == request.auth.uid &&
+        request.resource.data.status == 'Applied';
+
+      // Students cannot change their own application status!
+      // Only authorized company recruiters or admins can update status
+      allow update: if (isCompany() && resource.data.companyId == request.auth.uid) || isAdmin();
+
+      allow delete: if (isAuthenticated() && resource.data.studentId == request.auth.uid && resource.data.status == 'Applied')
+        || isAdmin();
+    }
+  }
+}
+

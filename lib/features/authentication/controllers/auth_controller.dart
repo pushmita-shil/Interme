@@ -24,6 +24,19 @@ class AuthController extends GetxController {
     }
   }
 
+  void navigateBasedOnRole(String? role) {
+    switch (role) {
+      case 'Company':
+      case 'Institute':
+      case 'Student':
+      default:
+        // Student dashboard is currently the primary dashboard screen in the project.
+        // Role-specific company and institute dashboards can be routed here once created.
+        Get.offAllNamed(AppRoutes.studentDashboard);
+        break;
+    }
+  }
+
   Future<void> signIn() async {
     if (emailController.text.trim().isEmpty || passwordController.text.isEmpty) {
       Get.snackbar(
@@ -42,10 +55,11 @@ class AuthController extends GetxController {
       );
 
       if (result == AuthResult.success) {
-        Get.offAllNamed(AppRoutes.studentDashboard);
+        final currentUserName = _authService.currentUser?.name ?? 'User';
+        navigateBasedOnRole(_authService.currentUser?.role);
         Get.snackbar(
           'Welcome Back',
-          'Signed in successfully!',
+          'Signed in as $currentUserName!',
           snackPosition: SnackPosition.BOTTOM,
         );
       } else if (result == AuthResult.errorUserNotFound) {
@@ -85,8 +99,8 @@ class AuthController extends GetxController {
   }
 
   Future<void> signUp() async {
-    if (emailController.text.isEmpty ||
-        nameController.text.isEmpty ||
+    if (emailController.text.trim().isEmpty ||
+        nameController.text.trim().isEmpty ||
         passwordController.text.isEmpty) {
       Get.snackbar(
         'Error',
@@ -98,15 +112,40 @@ class AuthController extends GetxController {
 
     try {
       isLoading.value = true;
+      final role = selectedRole.value.isNotEmpty ? selectedRole.value : 'Student';
       final result = await _authService.register(
         emailController.text.trim(),
         nameController.text.trim(),
-        selectedRole.value.isEmpty ? 'Student' : selectedRole.value,
+        role,
         passwordController.text.trim(),
       );
 
       if (result == AuthResult.otpSent) {
         Get.toNamed(AppRoutes.otp);
+      } else if (result == AuthResult.errorEmailAlreadyExists) {
+        Get.snackbar(
+          'Registration Failed',
+          'An account with this email already exists.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else if (result == AuthResult.errorWeakPassword) {
+        Get.snackbar(
+          'Registration Failed',
+          'Password should be at least 6 characters.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else if (result == AuthResult.errorInvalidEmail) {
+        Get.snackbar(
+          'Registration Failed',
+          'Please enter a valid email address.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        Get.snackbar(
+          'Registration Failed',
+          'Could not complete registration. Please try again.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     } catch (e) {
       Get.snackbar(

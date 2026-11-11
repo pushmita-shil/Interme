@@ -24,9 +24,20 @@ import '../../features/authentication/screens/onboarding_success_screen.dart';
 import '../../features/student/bindings/student_binding.dart';
 import '../../features/student/screens/student_profile_completion_screen.dart';
 import '../../features/student/screens/student_dashboard_screen.dart';
-import '../../features/student/screens/marketplace_screen.dart';
-import '../../features/student/screens/application_tracker_screen.dart';
 import '../../features/student/screens/student_profile_screen.dart';
+
+// Marketplace imports
+import '../../features/marketplace/bindings/marketplace_binding.dart';
+import '../../features/marketplace/views/marketplace_screen.dart';
+import '../../features/marketplace/views/internship_details_screen.dart';
+import '../../features/marketplace/views/saved_internships_screen.dart';
+import '../../features/marketplace/views/my_applications_screen.dart';
+
+// Scanner imports
+import '../../features/scanner/bindings/scanner_binding.dart';
+import '../../features/scanner/screens/ai_scanner_screen.dart';
+import '../../features/scanner/screens/scanner_analysis_screen.dart';
+import '../../features/scanner/screens/scanner_report_screen.dart';
 
 class AppPages {
   static const initial = AppRoutes.splash;
@@ -87,17 +98,47 @@ class AppPages {
     GetPage(
       name: AppRoutes.marketplace,
       page: () => const MarketplaceScreen(),
-      binding: StudentBinding(),
+      binding: MarketplaceBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.internshipDetails,
+      page: () => const InternshipDetailsScreen(),
+      binding: MarketplaceBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.savedInternships,
+      page: () => const SavedInternshipsScreen(),
+      binding: MarketplaceBinding(),
     ),
     GetPage(
       name: AppRoutes.tracker,
-      page: () => const ApplicationTrackerScreen(),
-      binding: StudentBinding(),
+      page: () => const MyApplicationsScreen(),
+      binding: MarketplaceBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.myApplications,
+      page: () => const MyApplicationsScreen(),
+      binding: MarketplaceBinding(),
     ),
     GetPage(
       name: AppRoutes.studentProfile,
       page: () => const StudentProfileScreen(),
       binding: StudentBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.aiScanner,
+      page: () => const AiScannerScreen(),
+      binding: ScannerBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.scannerAnalysis,
+      page: () => const ScannerAnalysisScreen(),
+      binding: ScannerBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.scannerReport,
+      page: () => const ScannerReportScreen(),
+      binding: ScannerBinding(),
     ),
   ];
 }
