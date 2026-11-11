@@ -12,7 +12,10 @@ class AppRoutes {
   static const String studentProfileCompletion = '/student-profile-completion';
   static const String studentDashboard = '/student-dashboard';
   static const String marketplace = '/marketplace';
+  static const String internshipDetails = '/internship-details';
+  static const String savedInternships = '/saved-internships';
   static const String tracker = '/tracker';
+  static const String myApplications = '/my-applications';
   static const String studentProfile = '/student-profile';
   static const String aiScanner = '/ai-scanner';
   static const String scannerAnalysis = '/scanner-analysis';

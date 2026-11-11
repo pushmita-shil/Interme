@@ -168,7 +168,7 @@ class StudentController extends GetxController {
             ],
           ),
           content: Text(
-            'Your application for ${internship.title} at ${internship.companyName} has been submitted.\n\nOur AI-verification system vetted this listing with a trust rating of ${internship.trustScore.toInt()}%.',
+            'Your application for ${internship.title} at ${internship.companyName} has been submitted.\n\nOur AI-verification system vetted this listing with a trust rating of ${internship.trustScore != null ? '${internship.trustScore!.toInt()}%' : 'audit pending'}.',
           ),
           actions: [
             TextButton(

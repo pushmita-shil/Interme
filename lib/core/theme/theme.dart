@@ -21,7 +21,6 @@ class AppTheme {
         onPrimary: AppColors.onPrimary,
         onSecondary: AppColors.onSecondary,
         onSurface: AppColors.onSurface,
-        onBackground: AppColors.onBackground,
         outline: AppColors.outline,
         outlineVariant: AppColors.outlineVariant,
       ),
@@ -88,10 +87,8 @@ class AppTheme {
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
         surface: Color(0xFF1E293B), // Slate 800
-        background: Color(0xFF0F172A),
         onPrimary: Colors.white,
         onSurface: Colors.white,
-        onBackground: Colors.white,
       ),
     );
   }
